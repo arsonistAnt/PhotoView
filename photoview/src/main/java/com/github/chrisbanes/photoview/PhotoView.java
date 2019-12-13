@@ -16,6 +16,7 @@
 package com.github.chrisbanes.photoview;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -34,6 +35,7 @@ public class PhotoView extends AppCompatImageView {
 
     private PhotoViewAttacher attacher;
     private ScaleType pendingScaleType;
+    private int customScaleType = -1;
 
     public PhotoView(Context context) {
         this(context, null);
@@ -41,15 +43,19 @@ public class PhotoView extends AppCompatImageView {
 
     public PhotoView(Context context, AttributeSet attr) {
         this(context, attr, 0);
+        setCustomScaleType(context, attr);
     }
 
     public PhotoView(Context context, AttributeSet attr, int defStyle) {
         super(context, attr, defStyle);
+        // Needs to be called before init to set the custom attribute for the attacher.
+        setCustomScaleType(context, attr);
         init();
     }
 
     private void init() {
         attacher = new PhotoViewAttacher(this);
+        attacher.setCustomScaleType(customScaleType);
         //We always pose as a Matrix scale type, though we can change to another scale type
         //via the attacher
         super.setScaleType(ScaleType.MATRIX);
@@ -252,5 +258,20 @@ public class PhotoView extends AppCompatImageView {
 
     public void setOnSingleFlingListener(OnSingleFlingListener onSingleFlingListener) {
         attacher.setOnSingleFlingListener(onSingleFlingListener);
+    }
+
+    // Customized by arsonistAnt
+    private void setCustomScaleType(Context context, AttributeSet attr) {
+        TypedArray attribute = context.getTheme().obtainStyledAttributes(
+                attr,
+                R.styleable.PhotoView,
+                0, 0);
+        try {
+            if (attribute.hasValue(R.styleable.PhotoView_customScaleType)) {
+                customScaleType = attribute.getInt(R.styleable.PhotoView_customScaleType, -1);
+            }
+        } finally {
+            attribute.recycle();
+        }
     }
 }

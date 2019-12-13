@@ -6,12 +6,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.chrisbanes.photoview.OnPhotoTapListener;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.squareup.picasso.Picasso;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import static android.R.attr.uiOptions;
 
@@ -19,6 +19,7 @@ import static android.R.attr.uiOptions;
  * Shows immersive image viewer
  */
 public class ImmersiveActivity extends AppCompatActivity {
+    boolean show = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -27,15 +28,25 @@ public class ImmersiveActivity extends AppCompatActivity {
 
         PhotoView photoView = findViewById(R.id.photo_view);
         Picasso.with(this)
-                .load("http://pbs.twimg.com/media/Bist9mvIYAAeAyQ.jpg")
+                .load("https://dragalialost.akamaized.net/attached/cartoon/images/1974f7cd9c7a2baba93e27e612b42475.png")
                 .into(photoView);
         photoView.setOnPhotoTapListener(new OnPhotoTapListener() {
             @Override
             public void onPhotoTap(ImageView view, float x, float y) {
-                //fullScreen();
+                if (show) {
+                    fullScreen();
+                    show = false;
+                } else {
+                    showScreen();
+                    show = true;
+                }
             }
         });
         fullScreen();
+    }
+
+    public void showScreen() {
+        showSystemUI();
     }
 
     public void fullScreen() {
@@ -45,6 +56,8 @@ public class ImmersiveActivity extends AppCompatActivity {
         // getSystemUiVisibility() gives us that bitfield.
         int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
         int newUiOptions = uiOptions;
+        newUiOptions ^= View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+        newUiOptions ^= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
         // END_INCLUDE (get_current_ui_flags)
         // BEGIN_INCLUDE (toggle_ui_flags)
         boolean isImmersiveModeEnabled = isImmersiveModeEnabled();
@@ -78,6 +91,14 @@ public class ImmersiveActivity extends AppCompatActivity {
 
         getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
         //END_INCLUDE (set_ui_flags)
+    }
+
+
+    private void showSystemUI() {
+        PhotoView photoView = findViewById(R.id.photo_view);
+        getWindow().getDecorView().setSystemUiVisibility((View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                ^ View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                ^ View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN));
     }
 
     private boolean isImmersiveModeEnabled() {

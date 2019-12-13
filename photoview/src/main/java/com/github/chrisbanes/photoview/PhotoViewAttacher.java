@@ -94,6 +94,7 @@ public class PhotoViewAttacher implements View.OnTouchListener,
 
     private boolean mZoomEnabled = true;
     private ScaleType mScaleType = ScaleType.FIT_CENTER;
+    private int customScaleType = -1;
 
     private OnGestureListener onGestureListener = new OnGestureListener() {
         @Override
@@ -320,6 +321,10 @@ public class PhotoViewAttacher implements View.OnTouchListener,
         return mScaleType;
     }
 
+    public int getCustomScaleType() {
+        return customScaleType;
+    }
+
     @Override
     public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int
         oldRight, int oldBottom) {
@@ -480,6 +485,10 @@ public class PhotoViewAttacher implements View.OnTouchListener,
         }
     }
 
+    public void setCustomScaleType(int customScaleType) {
+        this.customScaleType = customScaleType;
+    }
+
     public boolean isZoomable() {
         return mZoomEnabled;
     }
@@ -604,7 +613,12 @@ public class PhotoViewAttacher implements View.OnTouchListener,
         mBaseMatrix.reset();
         final float widthScale = viewWidth / drawableWidth;
         final float heightScale = viewHeight / drawableHeight;
-        if (mScaleType == ScaleType.CENTER) {
+        // Autoscale width and crop to top.
+        if (customScaleType == 0) {
+            //float scale = Math.max(widthScale, heightScale);
+            mBaseMatrix.postScale(widthScale, widthScale);
+            mBaseMatrix.postTranslate((viewWidth - drawableWidth * widthScale) / 2F, 0);
+        } else if (mScaleType == ScaleType.CENTER) {
             mBaseMatrix.postTranslate((viewWidth - drawableWidth) / 2F,
                 (viewHeight - drawableHeight) / 2F);
 
